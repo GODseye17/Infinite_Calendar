@@ -1,0 +1,349 @@
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import CalendarMonth from './CalendarMonth';
+import CalendarSkeleton from './CalendarSkeleton';
+import StickyHeader from './StickyHeader';
+import type { JournalEntryWithDate } from '../types/journal';
+
+interface InfiniteCalendarProps {
+  journalEntries: JournalEntryWithDate[];
+}
+
+interface MonthData {
+  month: number;
+  year: number;
+  key: string;
+}
+
+const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) => {
+  const [visibleMonths, setVisibleMonths] = useState<MonthData[]>([]);
+  const [isLoadingTop, setIsLoadingTop] = useState(false);
+  const [isLoadingBottom, setIsLoadingBottom] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Maximum number of months to keep in memory for performance
+  const MAX_VISIBLE_MONTHS = 100;
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const loadingTopRef = useRef<HTMLDivElement>(null);
+  const loadingBottomRef = useRef<HTMLDivElement>(null);
+  
+  const currentDate = useMemo(() => new Date(), []);
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const generateMonthKey = useCallback((month: number, year: number) => `${year}-${month}`, []);
+
+  const getMonthData = useCallback((month: number, year: number): MonthData => ({
+    month,
+    year,
+    key: generateMonthKey(month, year)
+  }), [generateMonthKey]);
+
+  const calculateNextMonth = useCallback((month: number, year: number): { month: number; year: number } => {
+    let nextMonth = month + 1;
+    let nextYear = year;
+
+    if (nextMonth >= 12) {
+      nextMonth = 0;
+      nextYear++;
+    }
+
+    // Ensure we don't go beyond reasonable date limits (JavaScript Date can handle up to year 275760)
+    if (nextYear > 2100) {
+      console.warn('Reached maximum supported year for infinite scroll');
+      return { month, year };
+    }
+
+    return { month: nextMonth, year: nextYear };
+  }, []);
+
+  const calculatePrevMonth = useCallback((month: number, year: number): { month: number; year: number } => {
+    let prevMonth = month - 1;
+    let prevYear = year;
+
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevYear--;
+    }
+
+    // Ensure we don't go below reasonable date limits
+    if (prevYear < 1900) {
+      console.warn('Reached minimum supported year for infinite scroll');
+      return { month, year };
+    }
+
+    return { month: prevMonth, year: prevYear };
+  }, []);
+
+
+
+  const initializeMonths = useCallback(async () => {
+    setIsInitializing(true);
+    const months: MonthData[] = [];
+    
+    const monthRange = 4;
+
+    for (let i = -monthRange; i <= monthRange; i++) {
+      let month = currentMonth + i;
+      let year = currentYear;
+
+      if (month < 0) {
+        month += 12;
+        year--;
+      } else if (month >= 12) {
+        month -= 12;
+        year++;
+      }
+
+      const monthData = getMonthData(month, year);
+      months.push(monthData);
+    }
+    setVisibleMonths(months);
+    
+    setTimeout(() => {
+      setIsInitializing(false);
+    }, 500);
+  }, [currentMonth, currentYear, getMonthData, currentDate]);
+
+  const addMonthsToTop = useCallback(async (count: number = 12) => {
+    if (isLoadingTop) return;
+    
+    setIsLoadingTop(true);
+
+    setVisibleMonths(prev => {
+      if (prev.length === 0) {
+        return prev;
+      }
+
+      const newMonths: MonthData[] = [];
+      const firstMonth = prev[0];
+
+      let currentMonth = firstMonth.month;
+      let currentYear = firstMonth.year;
+
+      for (let i = 0; i < count; i++) {
+        const { month, year } = calculatePrevMonth(currentMonth, currentYear);
+        currentMonth = month;
+        currentYear = year;
+
+        const monthData = getMonthData(month, year);
+        newMonths.unshift(monthData);
+      }
+
+      const result = [...newMonths, ...prev];
+
+      // If we exceed the maximum, remove from the bottom to maintain performance
+      if (result.length > MAX_VISIBLE_MONTHS) {
+        const excess = result.length - MAX_VISIBLE_MONTHS;
+        const trimmedResult = result.slice(0, result.length - excess);
+        console.log(`Trimmed ${excess} months from bottom to maintain performance`);
+        return trimmedResult;
+      }
+
+      return result;
+    });
+    
+    setTimeout(() => setIsLoadingTop(false), 50);
+  }, [isLoadingTop, getMonthData, calculatePrevMonth]);
+
+  const addMonthsToBottom = useCallback(async (count: number = 12) => {
+    if (isLoadingBottom) return;
+    
+    setIsLoadingBottom(true);
+
+    setVisibleMonths(prev => {
+      if (prev.length === 0) {
+        return prev;
+      }
+
+      const newMonths: MonthData[] = [];
+      const lastMonth = prev[prev.length - 1];
+
+      let currentMonth = lastMonth.month;
+      let currentYear = lastMonth.year;
+
+      for (let i = 0; i < count; i++) {
+        const { month, year } = calculateNextMonth(currentMonth, currentYear);
+        currentMonth = month;
+        currentYear = year;
+
+        const monthData = getMonthData(month, year);
+        newMonths.push(monthData);
+      }
+
+      const result = [...prev, ...newMonths];
+
+      // If we exceed the maximum, remove from the top to maintain performance
+      if (result.length > MAX_VISIBLE_MONTHS) {
+        const excess = result.length - MAX_VISIBLE_MONTHS;
+        const trimmedResult = result.slice(excess);
+        console.log(`Trimmed ${excess} months from top to maintain performance`);
+        return trimmedResult;
+      }
+
+      return result;
+    });
+    
+    setTimeout(() => setIsLoadingBottom(false), 50);
+  }, [isLoadingBottom, getMonthData, calculateNextMonth]);
+
+  useEffect(() => {
+    initializeMonths();
+  }, [initializeMonths]);
+
+  useEffect(() => {
+    const loadingTop = loadingTopRef.current;
+    const loadingBottom = loadingBottomRef.current;
+
+    if (!loadingTop || !loadingBottom) {
+      return;
+    }
+
+    const topObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !isLoadingTop) {
+            addMonthsToTop();
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px 0px 0px 0px' }
+    );
+
+    const bottomObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !isLoadingBottom) {
+            addMonthsToBottom();
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px 50px 0px' }
+    );
+    
+    topObserver.observe(loadingTop);
+    bottomObserver.observe(loadingBottom);
+
+
+
+    // Immediate scroll detection for smooth Instagram-like experience
+    const handleScrollImmediate = () => {
+      if (!containerRef.current) return;
+
+      const container = containerRef.current;
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+
+      // Check if we're near the top (within 200px for more responsive loading)
+      const nearTop = scrollTop < 200;
+      if (nearTop && !isLoadingTop) {
+        addMonthsToTop();
+      }
+
+      // Check if we're near the bottom (within 200px for more responsive loading)
+      const nearBottom = scrollTop + clientHeight > scrollHeight - 200;
+      if (nearBottom && !isLoadingBottom) {
+        addMonthsToBottom();
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScrollImmediate, { passive: true });
+    }
+
+    return () => {
+      topObserver.disconnect();
+      bottomObserver.disconnect();
+      if (container) {
+        container.removeEventListener('scroll', handleScrollImmediate);
+      }
+    };
+  }, [isLoadingTop, isLoadingBottom, addMonthsToTop, addMonthsToBottom]);
+
+  const MemoizedCalendarMonth = useMemo(() => React.memo(CalendarMonth, (prevProps, nextProps) => {
+    return (
+      prevProps.month === nextProps.month &&
+      prevProps.year === nextProps.year &&
+      prevProps.journalEntries === nextProps.journalEntries
+    );
+  }), []);
+
+  if (isInitializing || visibleMonths.length === 0) {
+    return (
+      <div className="min-h-screen bg-cream-50 flex items-center justify-center safe-area-top">
+        <div className="w-full max-w-6xl mx-auto px-4">
+          <CalendarSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+
+
+  return (
+    <div className="relative w-full">
+      <StickyHeader 
+        visibleMonths={visibleMonths}
+        containerRef={containerRef}
+      />
+      
+      <div
+        ref={containerRef}
+        className="h-screen overflow-y-auto scroll-smooth pt-16 sm:pt-20"
+        style={{ willChange: 'scroll-position' }}
+      >
+        <div className="relative">
+          <div
+            ref={loadingTopRef}
+            className="h-32 flex items-center justify-center bg-gradient-to-b from-red-50 to-red-100 border-t border-red-200"
+          >
+            {isLoadingTop && (
+              <div className="w-full max-w-6xl mx-auto px-4">
+                <CalendarSkeleton />
+              </div>
+            )}
+            {!isLoadingTop && (
+              <div className="text-sm text-red-600 font-medium">
+                ↑ Scroll up to load more months
+              </div>
+            )}
+          </div>
+          
+          {visibleMonths.map((monthData) => (
+            <div 
+              key={monthData.key} 
+              className="mb-4 sm:mb-6 md:mb-8 px-2 sm:px-4 md:px-0"
+              data-month-key={monthData.key}
+            >
+              <MemoizedCalendarMonth
+                month={monthData.month}
+                year={monthData.year}
+                journalEntries={journalEntries}
+              />
+            </div>
+          ))}
+          
+          <div
+            ref={loadingBottomRef}
+            className="h-32 flex items-center justify-center bg-gradient-to-t from-blue-50 to-blue-100 border-b border-blue-200"
+          >
+            {isLoadingBottom && (
+              <div className="w-full max-w-6xl mx-auto px-4">
+                <CalendarSkeleton />
+              </div>
+            )}
+            {!isLoadingBottom && (
+              <div className="text-sm text-blue-600 font-medium">
+                ↓ Scroll down to load more months
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default InfiniteCalendar;

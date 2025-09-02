@@ -1,14 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import CalendarMonth from './components/CalendarMonth';
+import { useState, useEffect, useCallback } from 'react';
+import InfiniteCalendar from './components/InfiniteCalendar';
 import { processJournalEntries } from './utils/journal';
+import { memoryManager } from './utils/memory';
 import type { JournalEntry, JournalEntryWithDate } from './types/journal';
-import './App.css';
 
 function App() {
   const [journalEntries, setJournalEntries] = useState<JournalEntryWithDate[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const logPerformanceMetrics = useCallback(() => {
+    const memoryUsage = memoryManager.getMemoryUsage();
+    console.log('Memory Usage:', memoryUsage);
+    
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      console.log('Browser Memory:', {
+        usedJSHeapSize: Math.round(memory.usedJSHeapSize / 1024 / 1024) + 'MB',
+        totalJSHeapSize: Math.round(memory.totalJSHeapSize / 1024 / 1024) + 'MB',
+        jsHeapSizeLimit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024) + 'MB'
+      });
+    }
+  }, []);
+
   useEffect(() => {
+    const currentDate = new Date();
+    console.log('Current date:', currentDate.toLocaleDateString());
+    console.log('Current month:', currentDate.getMonth());
+    console.log('Current year:', currentDate.getFullYear());
+    console.log('Is mobile:', window.innerWidth <= 768);
+    
     const loadJournalEntries = async () => {
       try {
         const entries: JournalEntry[] = [
@@ -86,6 +106,34 @@ function App() {
             "categories": ["Color Care", "Purple Shampoo", "Toning"],
             "date": "30/09/2025",
             "description": "Used purple shampoo to tone highlights. Color looks refreshed and brassy tones are gone. Need to remember not to leave it on too long next time."
+          },
+          {
+            "imgUrl": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
+            "rating": 4.1,
+            "categories": ["Hair Growth", "Vitamins", "Consistency"],
+            "date": "05/10/2025",
+            "description": "Started taking biotin supplements this month. Hair feels stronger and I'm noticing less shedding during washing."
+          },
+          {
+            "imgUrl": "https://images.pexels.com/photos/33669506/pexels-photo-33669506.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
+            "rating": 4.4,
+            "categories": ["New Styling Tool", "Heat Protection", "Curls"],
+            "date": "12/10/2025",
+            "description": "Bought a new diffuser attachment for my hair dryer. Much better curl definition and less frizz compared to air drying."
+          },
+          {
+            "imgUrl": "https://images.pexels.com/photos/33653029/pexels-photo-33653029.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
+            "rating": 3.9,
+            "categories": ["Hair Color", "Maintenance", "Salon"],
+            "date": "20/10/2025",
+            "description": "Touch-up appointment for my highlights. Colorist used a gentler formula this time. Hair feels less damaged."
+          },
+          {
+            "imgUrl": "https://images.pexels.com/photos/33659051/pexels-photo-33659051.png?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
+            "rating": 4.8,
+            "categories": ["Deep Treatment", "Overnight Mask", "Hydration"],
+            "date": "28/10/2025",
+            "description": "Tried an overnight hair mask with argan oil. Woke up to incredibly soft, manageable hair. Will definitely repeat weekly."
           }
         ];
 
@@ -101,23 +149,34 @@ function App() {
     loadJournalEntries();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(logPerformanceMetrics, 30000);
+    return () => clearInterval(interval);
+  }, [logPerformanceMetrics]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        memoryManager.clearCache();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   if (loading) {
-    return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
+  return (
+      <div className="min-h-screen bg-cream-50 flex items-center justify-center safe-area-top">
         <div className="text-lg text-gray-600">Loading your hair care journal...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 py-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl font-bold text-center text-gray-800 mb-12">
-          Hair Journal Calendar
-        </h1>
-        <CalendarMonth month={8} year={2025} journalEntries={journalEntries} />
+    <div className="min-h-screen bg-cream-50 overflow-x-hidden">
+      <InfiniteCalendar journalEntries={journalEntries} />
       </div>
-    </div>
   );
 }
 

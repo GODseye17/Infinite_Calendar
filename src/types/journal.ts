@@ -9,4 +9,5 @@ export interface JournalEntry {
 export interface JournalEntryWithDate extends Omit<JournalEntry, 'date'> {
   date: Date;
   displayDate: string;
+  key?: string;
 }

@@ -8,11 +8,11 @@ interface JournalTooltipProps {
 }
 
 const JournalTooltip: React.FC<JournalTooltipProps> = ({ entry, isVisible, position }) => {
-  if (!isVisible) return null;
+  if (!isVisible || window.innerWidth <= 768) return null;
 
   return (
     <div
-      className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 max-w-xs pointer-events-none"
+      className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 max-w-xs pointer-events-none hidden md:block"
       style={{
         left: position.x + 10,
         top: position.y - 10,
