@@ -26,7 +26,7 @@ interface MonthData {
 const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) => {
   const [visibleMonths, setVisibleMonths] = useState<MonthData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(3);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(12);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     query: '',
     categories: [],
@@ -102,10 +102,13 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
   }, []);
 
   useEffect(() => {
+    const targetMonth = 8;
+    const targetYear = 2025;
+    
     const months: MonthData[] = [];
-    for (let i = -3; i <= 3; i++) {
-      let month = currentMonth + i;
-      let year = currentYear;
+    for (let i = -12; i <= 12; i++) {
+      let month = targetMonth + i;
+      let year = targetYear;
       
       if (month < 0) {
         month += 12;

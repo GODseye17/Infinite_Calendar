@@ -112,7 +112,7 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef
   useEffect(() => {
     if (visibleMonths.length > 0) {
       const currentMonthData = visibleMonths.find(
-        month => month.month === new Date().getMonth() && month.year === new Date().getFullYear()
+        month => month.month === 8 && month.year === 2025
       ) || visibleMonths[Math.floor(visibleMonths.length / 2)];
       
       if (currentMonthData) {

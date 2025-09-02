@@ -103,7 +103,7 @@ const CalendarMonth: React.FC<CalendarMonthPropsWithEntries> = React.memo(({ mon
             const journalEntry = findJournalEntryForDate(journalEntries, day.date);
             const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
             const isActiveMonth = day.date.getMonth() === month && day.date.getFullYear() === year;
-
+            const isSeptember2025 = day.date.getMonth() === 8 && day.date.getFullYear() === 2025;
             return (
               <div 
                 key={`${day.date.getTime()}`} 
@@ -117,7 +117,10 @@ const CalendarMonth: React.FC<CalendarMonthPropsWithEntries> = React.memo(({ mon
                     day.isToday ? 'today' : ''
                   } ${
                     isWeekend ? 'weekend' : ''
-                  } ${
+                  }${
+                    isSeptember2025 ? 'september-2025' : 'other-month'
+                  }
+                   ${
                     isActiveMonth ? 'active-month' : 'other-month'
                   }`}
                   onMouseEnter={(e) => handleDayHover(e, day)}

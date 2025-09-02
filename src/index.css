@@ -366,6 +366,14 @@
     color: white;
     font-weight: 700;
   }
+  .calendar-day.september-2025 .calendar-day-number {
+    color: #000000;
+    font-weight: 600;
+  }
+  
+  .calendar-day.other-month .calendar-day-number {
+    color: #9CA3B8;
+  }
   
   .day-cell .calendar-day.today .rating-row {
     color: #BFDBFE;
