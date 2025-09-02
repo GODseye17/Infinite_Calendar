@@ -70,6 +70,15 @@
     color: #666666;
   }
 
+  .rating-row {
+    position: absolute;
+    top: 8px;
+    left: 40px;
+    font-size: 10px;
+    color: #60A5FA;
+    letter-spacing: 1px;
+  }
+
   .calendar-day.weekend .calendar-day-number {
     color: #999999;
   }
@@ -99,18 +108,71 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
+  .grid-entry-image {
+    position: absolute;
+    width: 90px;
+    height: 120px;
+    object-fit: cover;
+    top: 28px;
+    left: 40px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .chip-row {
+    position: absolute;
+    bottom: 8px;
+    left: 40px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    background: #F1F5F9;
+    color: #334155;
+    border: 1px solid #E2E8F0;
+  }
+
+  .chip-a {
+    background: #EEF2FF;
+    color: #4338CA;
+    border-color: #E0E7FF;
+  }
+
+  .chip-b {
+    background: #FFF1F2;
+    color: #BE123C;
+    border-color: #FFE4E6;
+  }
+
   .month-header {
     font-size: 28px;
     font-weight: 700;
     color: #333333;
     letter-spacing: -0.025em;
-    padding: 24px 0;
+    padding: 16px 0 8px 0;
     text-align: center;
     background-color: #FFFFFF;
     position: sticky;
     top: 0;
     z-index: 10;
     transition: transform 0.3s ease-out;
+  }
+
+  .weekday-static-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    max-width: 64rem;
+    margin: 8px auto 0 auto;
+    color: #9CA3AF;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .month-grid {
@@ -136,10 +198,43 @@
 
   .day-cell {
     background-color: #FFFFFF;
-    min-height: 80px;
+    min-height: 160px;
     padding: 8px;
     position: relative;
     border-bottom: 1px solid #F5F5F5;
+  }
+
+  .calendar-day.other-month {
+    opacity: 0.7;
+    background-color: #F8FAFC;
+  }
+  
+  .calendar-day.other-month .calendar-day-number {
+    color: #94A3B8;
+  }
+  
+  .calendar-day.other-month .rating-row {
+    opacity: 0.6;
+  }
+  
+  .calendar-day.other-month .grid-entry-image {
+    opacity: 0.6;
+  }
+  
+  .calendar-day.other-month .chip {
+    opacity: 0.6;
+    background: #F1F5F9;
+    color: #94A3B8;
+  }
+  
+  .calendar-day.active-month {
+    opacity: 1;
+    background-color: #FFFFFF;
+  }
+  
+  .calendar-day.active-month .calendar-day-number {
+    color: #334155;
+    font-weight: 500;
   }
 
   .day-cell:nth-child(7n+1),
@@ -245,7 +340,7 @@
     }
 
     .calendar-day {
-      min-height: 50px;
+      min-height: 140px;
       padding: 6px;
     }
 
@@ -257,5 +352,40 @@
     .keyboard-hint {
       display: none;
     }
+  }
+  .day-cell .calendar-day.today {
+    background-color: #3B82F6 !important;
+    color: white !important;
+    opacity: 1 !important;
+  }
+  .day-cell .calendar-day.today.other-month {
+    opacity: 1 !important;
+  }
+  
+  .day-cell .calendar-day.today .calendar-day-number {
+    color: white;
+    font-weight: 700;
+  }
+  
+  .day-cell .calendar-day.today .rating-row {
+    color: #BFDBFE;
+  }
+  
+  .day-cell .calendar-day.today .chip {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .day-cell .calendar-day.today .chip-a {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .day-cell .calendar-day.today .chip-b {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
   }
 }

@@ -1,34 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import InfiniteCalendar from './components/InfiniteCalendar';
 import { processJournalEntries } from './utils/journal';
-import { memoryManager } from './utils/memory';
 import type { JournalEntry, JournalEntryWithDate } from './types/journal';
 
 function App() {
   const [journalEntries, setJournalEntries] = useState<JournalEntryWithDate[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const logPerformanceMetrics = useCallback(() => {
-    const memoryUsage = memoryManager.getMemoryUsage();
-    console.log('Memory Usage:', memoryUsage);
-    
-    if ('memory' in performance) {
-      const memory = (performance as any).memory;
-      console.log('Browser Memory:', {
-        usedJSHeapSize: Math.round(memory.usedJSHeapSize / 1024 / 1024) + 'MB',
-        totalJSHeapSize: Math.round(memory.totalJSHeapSize / 1024 / 1024) + 'MB',
-        jsHeapSizeLimit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024) + 'MB'
-      });
-    }
-  }, []);
-
   useEffect(() => {
-    const currentDate = new Date();
-    console.log('Current date:', currentDate.toLocaleDateString());
-    console.log('Current month:', currentDate.getMonth());
-    console.log('Current year:', currentDate.getFullYear());
-    console.log('Is mobile:', window.innerWidth <= 768);
-    
     const loadJournalEntries = async () => {
       try {
         const entries: JournalEntry[] = [
@@ -119,22 +98,6 @@ function App() {
     };
 
     loadJournalEntries();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(logPerformanceMetrics, 30000);
-    return () => clearInterval(interval);
-  }, [logPerformanceMetrics]);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        memoryManager.clearCache();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   if (loading) {

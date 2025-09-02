@@ -130,6 +130,15 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef
     <div className="month-header">
       <div className="max-w-4xl mx-auto px-4">
         {monthName} {currentMonth.year}
+        <div className="weekday-static-row">
+          <div>S</div>
+          <div>M</div>
+          <div>T</div>
+          <div>W</div>
+          <div>T</div>
+          <div>F</div>
+          <div>S</div>
+        </div>
       </div>
     </div>
   );

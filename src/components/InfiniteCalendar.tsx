@@ -414,7 +414,7 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
           {visibleMonths.map((monthData) => (
             <div 
               key={monthData.key} 
-              className="mb-4 sm:mb-6 md:mb-8 px-2 sm:px-4 md:px-0"
+              className="px-2 sm:px-4 md:px-0"
               data-month-key={monthData.key}
             >
             <CalendarMonth

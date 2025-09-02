@@ -30,8 +30,10 @@ const CalendarMonth: React.FC<CalendarMonthPropsWithEntries> = React.memo(({ mon
     initialEntryIndex: 0
   });
 
-  const calendarDays = useMemo(() => getCalendarDays(month, year), [month, year]);
-  const dayHeaders = useMemo(() => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], []);
+  const monthDays = useMemo(() => {
+    return getCalendarDays(month, year).filter(d => d.isCurrentMonth);
+  }, [month, year]);
+  const firstDayOfWeek = useMemo(() => new Date(year, month, 1).getDay(), [month, year]);
 
   const monthEntries = useMemo(() => {
     return journalEntries.filter(entry => {
@@ -96,50 +98,60 @@ const CalendarMonth: React.FC<CalendarMonthPropsWithEntries> = React.memo(({ mon
   return (
     <>
       <div className="max-w-4xl mx-auto fade-in">
-        <div className="month-grid">
-          {dayHeaders.map((day) => (
-            <div key={day} className="day-header">
-              {day.slice(0, 3)}
-            </div>
-          ))}
+        <div className="month-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
+          {monthDays.map((day, index) => {
+            const journalEntry = findJournalEntryForDate(journalEntries, day.date);
+            const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
+            const isActiveMonth = day.date.getMonth() === month && day.date.getFullYear() === year;
 
-          {calendarDays.map((day) => (
-            <div key={`${day.date.getTime()}`} className="day-cell">
-              <div
-                className={`calendar-day ${
-                  day.isToday ? 'today' : ''
-                } ${
-                  day.isCurrentMonth ? '' : 'outside-month'
-                } ${
-                  day.date.getDay() === 0 || day.date.getDay() === 6 ? 'weekend' : ''
-                }`}
-                onMouseEnter={(e) => handleDayHover(e, day)}
-                onMouseLeave={handleDayLeave}
-                onClick={() => handleDayClick(day)}
+            return (
+              <div 
+                key={`${day.date.getTime()}`} 
+                className="day-cell"
+                style={{ 
+                  gridColumnStart: index === 0 ? firstDayOfWeek + 1 : 'auto'
+                }}
               >
-                <span className="calendar-day-number">
-                  {day.dayNumber}
-                </span>
+                <div
+                  className={`calendar-day ${
+                    day.isToday ? 'today' : ''
+                  } ${
+                    isWeekend ? 'weekend' : ''
+                  } ${
+                    isActiveMonth ? 'active-month' : 'other-month'
+                  }`}
+                  onMouseEnter={(e) => handleDayHover(e, day)}
+                  onMouseLeave={handleDayLeave}
+                  onClick={() => handleDayClick(day)}
+                >
+                  <span className="calendar-day-number">
+                    {day.dayNumber}
+                  </span>
 
-                {(() => {
-                  const journalEntry = findJournalEntryForDate(journalEntries, day.date);
-                  return journalEntry ? (
+                  {journalEntry ? (
                     <>
+                      <div className="rating-row">
+                        {'★'.repeat(Math.round(journalEntry.rating))}
+                      </div>
                       <img
-                        src={journalEntry.imgUrl.replace('w=150&h=150', 'w=56&h=56')}
+                        src={journalEntry.imgUrl.replace('w=150&h=150', 'w=160&h=160')}
                         alt="Entry"
-                        className="journal-entry-thumbnail"
+                        className="grid-entry-image"
                         loading="lazy"
                       />
-                      <div className="journal-entry-rating">
-                        {'★'.repeat(Math.floor(journalEntry.rating))}
+                      <div className="chip-row">
+                        {journalEntry.categories.slice(0, 2).map((cat, idx) => (
+                          <div key={`${cat}-${idx}`} className={`chip ${idx === 0 ? 'chip-a' : 'chip-b'}`}>
+                            {cat.length <= 2 ? cat : cat.slice(0, 2)}
+                          </div>
+                        ))}
                       </div>
                     </>
-                  ) : null;
-                })()}
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {tooltipState.entry && (
