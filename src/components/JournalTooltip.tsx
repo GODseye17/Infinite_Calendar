@@ -12,34 +12,41 @@ const JournalTooltip: React.FC<JournalTooltipProps> = ({ entry, isVisible, posit
 
   return (
     <div
-      className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 max-w-xs pointer-events-none hidden md:block"
+      className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-xs pointer-events-none"
       style={{
         left: position.x + 10,
         top: position.y - 10,
         transform: 'translateY(-100%)'
       }}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-3 mb-3">
         <img
           src={entry.imgUrl}
-          alt="Hair care"
-          className="w-8 h-8 rounded-full object-cover"
+          alt="Entry"
+          className="w-10 h-10 rounded-full object-cover border-2 border-gray-100"
           loading="lazy"
         />
         <div className="flex-1">
           <div className="text-sm font-medium text-gray-800">{entry.displayDate}</div>
-          <div className="text-xs text-yellow-500">{'★'.repeat(Math.floor(entry.rating))}</div>
+          <div className="text-xs text-yellow-500 mt-1">
+            {'★'.repeat(Math.floor(entry.rating))}
+          </div>
         </div>
       </div>
-      <p className="text-sm text-gray-600 line-clamp-3">
-        {entry.description}
+
+      <p className="text-sm text-gray-700 leading-relaxed mb-2">
+        {entry.description.length > 100
+          ? entry.description.substring(0, 100) + '...'
+          : entry.description
+        }
       </p>
+
       {entry.categories && entry.categories.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
-          {entry.categories.slice(0, 3).map(category => (
+        <div className="flex flex-wrap gap-1">
+          {entry.categories.slice(0, 2).map(category => (
             <span
               key={category}
-              className="text-xs bg-soft-purple text-purple-700 px-2 py-1 rounded-full"
+              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
             >
               {category}
             </span>

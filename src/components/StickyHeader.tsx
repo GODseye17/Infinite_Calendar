@@ -15,8 +15,6 @@ interface MonthVisibility {
 
 const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef }) => {
   const [currentMonth, setCurrentMonth] = useState<{ month: number; year: number }>({ month: 0, year: 2025 });
-  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'none'>('none');
-  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const lastScrollTop = useRef(0);
   const lastVisibleMonth = useRef<string>('');
@@ -69,16 +67,10 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef
     const newMonthKey = `${mostVisible.year}-${mostVisible.month}`;
     
     if (newMonthKey !== lastVisibleMonth.current) {
-      const direction = scrollTop > lastScrollTop.current ? 'right' : 'left';
-      setSlideDirection(direction);
-      setIsTransitioning(true);
-      
       setTimeout(() => {
         setCurrentMonth({ month: mostVisible.month, year: mostVisible.year });
-        setIsTransitioning(false);
-        setSlideDirection('none');
       }, 150);
-      
+
       lastVisibleMonth.current = newMonthKey;
     }
     
@@ -132,36 +124,12 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef
 
   const monthName = useMemo(() => getMonthName(currentMonth.month), [currentMonth.month]);
   
-  const getSlideClass = useMemo(() => {
-    if (slideDirection === 'left') return 'transform -translate-x-2 sm:-translate-x-5';
-    if (slideDirection === 'right') return 'transform translate-x-2 sm:translate-x-5';
-    return '';
-  }, [slideDirection]);
+
 
   return (
-    <div className="sticky top-0 z-20 bg-cream-50 border-b border-gray-200 shadow-lg transition-all duration-300 safe-area-top">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1" />
-          
-          <div className="flex-1 flex justify-center">
-            <div className="relative overflow-hidden">
-              <h1 
-                className={`text-lg sm:text-xl md:text-3xl lg:text-4xl font-bold text-gray-800 text-center transition-all duration-300 ${
-                  isTransitioning ? 'opacity-0' : 'opacity-100'
-                } ${getSlideClass}`}
-              >
-                {monthName} {currentMonth.year}
-              </h1>
-            </div>
-          </div>
-          
-          <div className="flex-1 flex justify-end">
-            <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">
-              Hair Journal
-            </div>
-          </div>
-        </div>
+    <div className="month-header">
+      <div className="max-w-4xl mx-auto px-4">
+        {monthName} {currentMonth.year}
       </div>
     </div>
   );

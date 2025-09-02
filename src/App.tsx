@@ -106,34 +106,6 @@ function App() {
             "categories": ["Color Care", "Purple Shampoo", "Toning"],
             "date": "30/09/2025",
             "description": "Used purple shampoo to tone highlights. Color looks refreshed and brassy tones are gone. Need to remember not to leave it on too long next time."
-          },
-          {
-            "imgUrl": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
-            "rating": 4.1,
-            "categories": ["Hair Growth", "Vitamins", "Consistency"],
-            "date": "05/10/2025",
-            "description": "Started taking biotin supplements this month. Hair feels stronger and I'm noticing less shedding during washing."
-          },
-          {
-            "imgUrl": "https://images.pexels.com/photos/33669506/pexels-photo-33669506.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
-            "rating": 4.4,
-            "categories": ["New Styling Tool", "Heat Protection", "Curls"],
-            "date": "12/10/2025",
-            "description": "Bought a new diffuser attachment for my hair dryer. Much better curl definition and less frizz compared to air drying."
-          },
-          {
-            "imgUrl": "https://images.pexels.com/photos/33653029/pexels-photo-33653029.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
-            "rating": 3.9,
-            "categories": ["Hair Color", "Maintenance", "Salon"],
-            "date": "20/10/2025",
-            "description": "Touch-up appointment for my highlights. Colorist used a gentler formula this time. Hair feels less damaged."
-          },
-          {
-            "imgUrl": "https://images.pexels.com/photos/33659051/pexels-photo-33659051.png?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=center",
-            "rating": 4.8,
-            "categories": ["Deep Treatment", "Overnight Mask", "Hydration"],
-            "date": "28/10/2025",
-            "description": "Tried an overnight hair mask with argan oil. Woke up to incredibly soft, manageable hair. Will definitely repeat weekly."
           }
         ];
 
@@ -166,17 +138,17 @@ function App() {
   }, []);
 
   if (loading) {
-  return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center safe-area-top">
-        <div className="text-lg text-gray-600">Loading your hair care journal...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading your journal...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 overflow-x-hidden">
+    <div className="min-h-screen">
       <InfiniteCalendar journalEntries={journalEntries} />
-      </div>
+    </div>
   );
 }
 
