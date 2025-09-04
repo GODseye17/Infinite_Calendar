@@ -37,10 +37,60 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
   });
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  const hasScrolledToInitialMonth = useRef(false);
+
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    if (node && visibleMonths.length > 0 && !hasScrolledToInitialMonth.current) {
+      setTimeout(() => {
+        const targetMonth = 8;
+        const targetYear = 2025;
+        const targetIndex = visibleMonths.findIndex(m => m.month === targetMonth && m.year === targetYear);
+        if (targetIndex !== -1) {
+          const monthElements = node.querySelectorAll('[data-month-key]');
+          const targetElement = monthElements[targetIndex] as HTMLElement;
+          if (targetElement && targetElement.offsetTop >= 0 && node.scrollHeight > 0) {
+            const elementTop = targetElement.offsetTop;
+            const headerHeight = 80;
+            const scrollPosition = elementTop - headerHeight;
+            node.scrollTo({
+              top: scrollPosition,
+              behavior: 'auto'
+            });
+            hasScrolledToInitialMonth.current = true;
+          }
+        }
+      }, 0);
+    }
+  }, [visibleMonths]);
+
+  function scrollToInitialMonth(attempt = 0) {
+    const targetMonth = 8;
+    const targetYear = 2025;
+    if (!containerRef.current) return;
+    const targetIndex = visibleMonths.findIndex(m => m.month === targetMonth && m.year === targetYear);
+    if (targetIndex === -1) return;
+    const monthElements = containerRef.current.querySelectorAll('[data-month-key]');
+    const targetElement = monthElements[targetIndex] as HTMLElement;
+    if (targetElement && targetElement.offsetTop >= 0 && containerRef.current.scrollHeight > 0) {
+      const elementTop = targetElement.offsetTop;
+      const headerHeight = 80;
+      const scrollPosition = elementTop - headerHeight;
+      containerRef.current.scrollTo({
+        top: scrollPosition,
+        behavior: 'auto'
+      });
+      hasScrolledToInitialMonth.current = true;
+      setTimeout(() => {
+        containerRef.current?.scrollTo({
+          top: scrollPosition,
+          behavior: 'auto'
+        });
+      }, 200);
+    } else if (attempt < 30) {
+      setTimeout(() => scrollToInitialMonth(attempt + 1), 50);
+    }
+  }
 
   const filteredEntries = useMemo(() => {
     return journalEntries.filter(entry => {
@@ -106,32 +156,29 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
     const targetYear = 2025;
 
     const months: MonthData[] = [];
-    for (let i = -12; i <= 12; i++) {
+    // Add previous months
+    for (let i = 12; i >= 1; i--) {
+      const date = new Date(targetYear, targetMonth - i, 1);
+      months.push(getMonthData(date.getMonth(), date.getFullYear()));
+    }
+    // Add current month (September 2025)
+    months.push(getMonthData(targetMonth, targetYear));
+    // Add next months
+    for (let i = 1; i <= 12; i++) {
       const date = new Date(targetYear, targetMonth + i, 1);
       months.push(getMonthData(date.getMonth(), date.getFullYear()));
     }
     setVisibleMonths(months);
-    setCurrentMonthIndex(12); // Ensure September 2025 is the initial month
+    setCurrentMonthIndex(months.findIndex(m => m.month === targetMonth && m.year === targetYear));
   }, []);
 
   useEffect(() => {
-    // Scroll to September 2025 after months are set
-    if (visibleMonths.length > 0 && containerRef.current) {
+    // Scroll to September 2025 only on initial render
+    if (!hasScrolledToInitialMonth.current && visibleMonths.length > 0) {
       setTimeout(() => {
-        const targetIndex = visibleMonths.findIndex(m => m.month === 8 && m.year === 2025);
-        if (targetIndex !== -1) {
-          const monthElements = containerRef.current!.querySelectorAll('[data-month-key]');
-          const targetElement = monthElements[targetIndex] as HTMLElement;
-          if (targetElement) {
-            const elementTop = targetElement.offsetTop;
-            const headerHeight = 80;
-            const scrollPosition = elementTop - headerHeight;
-            containerRef.current!.scrollTo({
-              top: scrollPosition,
-              behavior: 'auto'
-            });
-          }
-        }
+        requestAnimationFrame(() => {
+          scrollToInitialMonth();
+        });
       }, 0);
     }
   }, [visibleMonths]);
@@ -420,7 +467,7 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
           </div>
           
       <div
-        ref={containerRef}
+        ref={setContainerRef}
         className="h-screen overflow-y-auto scroll-smooth"
         style={{
           scrollbarWidth: 'none',
