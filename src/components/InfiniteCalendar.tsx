@@ -152,18 +152,15 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
   }, []);
 
   useEffect(() => {
-    const targetMonth = 8; // September (0-indexed)
+    const targetMonth = 8;
     const targetYear = 2025;
 
     const months: MonthData[] = [];
-    // Add previous months
     for (let i = 12; i >= 1; i--) {
       const date = new Date(targetYear, targetMonth - i, 1);
       months.push(getMonthData(date.getMonth(), date.getFullYear()));
     }
-    // Add current month (September 2025)
     months.push(getMonthData(targetMonth, targetYear));
-    // Add next months
     for (let i = 1; i <= 12; i++) {
       const date = new Date(targetYear, targetMonth + i, 1);
       months.push(getMonthData(date.getMonth(), date.getFullYear()));
@@ -173,7 +170,6 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
   }, []);
 
   useEffect(() => {
-    // Scroll to September 2025 only on initial render
     if (!hasScrolledToInitialMonth.current && visibleMonths.length > 0) {
       setTimeout(() => {
         requestAnimationFrame(() => {
@@ -329,21 +325,24 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
         containerRef={containerRef}
       />
       
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4">
+      <div className="bg-white border-b border-gray-200 px-1 sm:px-2 md:px-4 py-3">
+        <div className="w-full sm:max-w-4xl sm:mx-auto">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 text-xs sm:text-sm"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="text-sm font-medium">
+              <span className="font-medium hidden sm:inline">
                 {isSearchOpen ? 'Hide Filters' : 'Search & Filter'}
               </span>
+              <span className="font-medium sm:hidden">
+                {isSearchOpen ? 'Hide' : 'Filter'}
+              </span>
               {filteredEntries.length !== journalEntries.length && (
-                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="bg-blue-500 text-white text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
                   {filteredEntries.length}
                 </span>
               )}
@@ -353,10 +352,10 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
           </div>
 
           {isSearchOpen && (
-            <div className="mt-4 p-4 search-panel rounded-lg space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mt-4 p-2 sm:p-4 search-panel rounded-lg space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Search Text
                   </label>
                   <input
@@ -364,29 +363,29 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                     placeholder="Search descriptions, categories..."
                     value={searchFilters.query}
                     onChange={(e) => setSearchFilters(prev => ({ ...prev, query: e.target.value }))}
-                    className="search-input w-full px-3 py-2 rounded-md focus:outline-none"
+                    className="search-input w-full px-2 sm:px-3 py-2 text-sm rounded-md focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Rating Range
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <select
                       value={searchFilters.minRating}
                       onChange={(e) => setSearchFilters(prev => ({ ...prev, minRating: Number(e.target.value) }))}
-                      className="search-input flex-1 px-2 py-2 rounded-md focus:outline-none"
+                      className="search-input flex-1 px-1 sm:px-2 py-2 text-sm rounded-md focus:outline-none"
                     >
                       {[1, 2, 3, 4, 5].map(n => (
                         <option key={n} value={n}>{n}★</option>
                       ))}
                     </select>
-                    <span className="text-gray-500">to</span>
+                    <span className="text-gray-500 text-xs sm:text-sm">to</span>
                     <select
                       value={searchFilters.maxRating}
                       onChange={(e) => setSearchFilters(prev => ({ ...prev, maxRating: Number(e.target.value) }))}
-                      className="search-input flex-1 px-2 py-2 rounded-md focus:outline-none"
+                      className="search-input flex-1 px-1 sm:px-2 py-2 text-sm rounded-md focus:outline-none"
                     >
                       {[1, 2, 3, 4, 5].map(n => (
                         <option key={n} value={n}>{n}★</option>
@@ -396,7 +395,7 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Categories
                   </label>
                   <select
@@ -406,8 +405,8 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                       const values = Array.from(e.target.selectedOptions, option => option.value);
                       setSearchFilters(prev => ({ ...prev, categories: values }));
                     }}
-                    className="search-input w-full px-2 py-2 rounded-md focus:outline-none"
-                    size={3}
+                    className="search-input w-full px-1 sm:px-2 py-2 text-sm rounded-md focus:outline-none"
+                    size={2}
                   >
                     {uniqueCategories.map((category: string) => (
                       <option key={category} value={category}>{category}</option>
@@ -416,10 +415,10 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Date Range
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     <input
                       type="date"
                       value={searchFilters.dateFrom?.toISOString().split('T')[0] || ''}
@@ -427,7 +426,7 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                         ...prev,
                         dateFrom: e.target.value ? new Date(e.target.value) : null
                       }))}
-                      className="search-input flex-1 px-2 py-2 text-sm rounded-md focus:outline-none"
+                      className="search-input flex-1 px-1 sm:px-2 py-2 text-xs sm:text-sm rounded-md focus:outline-none"
                     />
                     <input
                       type="date"
@@ -436,13 +435,13 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                         ...prev,
                         dateTo: e.target.value ? new Date(e.target.value) : null
                       }))}
-                      className="search-input flex-1 px-2 py-2 text-sm rounded-md focus:outline-none"
+                      className="search-input flex-1 px-1 sm:px-2 py-2 text-xs sm:text-sm rounded-md focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                 <button
                   onClick={() => setSearchFilters({
                     query: '',
@@ -452,12 +451,12 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
                     dateFrom: null,
                     dateTo: null
                   })}
-                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  className="text-xs sm:text-sm text-gray-600 hover:text-gray-800 underline"
                 >
                   Clear all filters
                 </button>
 
-                <div className="text-sm text-gray-600">
+                <div className="text-xs sm:text-sm text-gray-600">
                   Showing {filteredEntries.length} of {journalEntries.length} entries
                 </div>
               </div>
@@ -477,7 +476,7 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
           {visibleMonths.map((monthData) => (
             <div 
               key={monthData.key} 
-              className="px-2 sm:px-4 md:px-0"
+              className="px-0 sm:px-1 md:px-0"
               data-month-key={monthData.key}
             >
             <CalendarMonth

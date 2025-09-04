@@ -45,6 +45,12 @@
     transform: scale(1.02);
   }
 
+  @media (hover: none) and (pointer: coarse) {
+    .calendar-day:hover {
+      transform: none;
+    }
+  }
+
   .calendar-day.today {
     background-color: #EBF4FF;
     border-radius: 50%;
@@ -173,6 +179,34 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    background-color: #F5F5F5;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .weekday-static-row {
+      max-width: none;
+      margin: 8px 0 0 0;
+      width: 100%;
+    }
+  }
+
+  .weekday-static-row > div {
+    background-color: #FFFFFF;
+    padding: 8px 4px;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .weekday-static-row {
+      gap: 0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .weekday-static-row > div {
+      padding: 6px 2px;
+    }
   }
 
   .month-grid {
@@ -180,9 +214,16 @@
     grid-template-columns: repeat(7, 1fr);
     gap: 1px;
     background-color: #F5F5F5;
-    border-radius: 12px;
+    border-radius: 0 0 12px 12px;
     overflow: hidden;
-    margin: 16px 0;
+    margin: 0 0 16px 0;
+  }
+
+  @media (max-width: 640px) {
+    .month-grid {
+      margin: 0 0 16px 0;
+      width: 100%;
+    }
   }
 
   .day-header {
@@ -199,6 +240,7 @@
   .day-cell {
     background-color: #FFFFFF;
     min-height: 160px;
+    min-width: 0;
     padding: 8px;
     position: relative;
     border-bottom: 1px solid #F5F5F5;
@@ -335,22 +377,185 @@
 
   @media (max-width: 640px) {
     .month-header {
-      font-size: 24px;
-      padding: 16px 0;
+      font-size: 20px;
+      padding: 12px 0;
+    }
+
+    .weekday-static-row {
+      font-size: 10px;
+      margin: 6px auto 0 auto;
     }
 
     .calendar-day {
-      min-height: 140px;
-      padding: 6px;
+      min-height: 120px;
+      padding: 4px;
+      touch-action: manipulation;
+    }
+
+    .calendar-day-number {
+      font-size: 12px;
+      top: 4px;
+      left: 4px;
+    }
+
+    .rating-row {
+      top: 4px;
+      left: 32px;
+      font-size: 9px;
+    }
+
+    .grid-entry-image {
+      width: 70px;
+      height: 90px;
+      top: 20px;
+      left: 32px;
+    }
+
+    .chip-row {
+      bottom: 4px;
+      left: 32px;
+      gap: 4px;
+    }
+
+    .chip {
+      font-size: 9px;
+      padding: 1px 4px;
+    }
+
+    .day-cell {
+      min-height: 120px;
+      padding: 4px;
     }
 
     .journal-entry-thumbnail {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
     }
 
     .keyboard-hint {
       display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .month-header {
+      font-size: 18px;
+      padding: 10px 0;
+    }
+
+    .weekday-static-row {
+      font-size: 9px;
+      margin: 4px auto 0 auto;
+    }
+
+    .month-grid {
+      gap: 0;
+      border-radius: 0 0 8px 8px;
+      margin: 0 0 12px 0;
+    }
+
+    .calendar-day {
+      min-height: 100px;
+      padding: 3px;
+    }
+
+    .calendar-day-number {
+      font-size: 11px;
+      top: 3px;
+      left: 3px;
+    }
+
+    .rating-row {
+      top: 3px;
+      left: 28px;
+      font-size: 8px;
+    }
+
+    .grid-entry-image {
+      width: 60px;
+      height: 75px;
+      top: 18px;
+      left: 28px;
+    }
+
+    .chip-row {
+      bottom: 3px;
+      left: 28px;
+      gap: 3px;
+    }
+
+    .chip {
+      font-size: 8px;
+      padding: 1px 3px;
+    }
+
+    .day-cell {
+      min-height: 100px;
+      padding: 3px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .month-header {
+      font-size: 16px;
+      padding: 8px 0;
+    }
+
+    .weekday-static-row {
+      font-size: 8px;
+      margin: 3px auto 0 auto;
+      letter-spacing: 0.02em;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .weekday-static-row > div {
+      padding: 4px 1px;
+    }
+
+    .month-grid {
+      gap: 0;
+      border-radius: 0 0 6px 6px;
+      margin: 0 0 8px 0;
+    }
+
+    .calendar-day {
+      min-height: 85px;
+      padding: 2px;
+    }
+
+    .calendar-day-number {
+      font-size: 10px;
+      top: 2px;
+      left: 2px;
+    }
+
+    .rating-row {
+      top: 2px;
+      left: 24px;
+      font-size: 7px;
+    }
+
+    .grid-entry-image {
+      width: 50px;
+      height: 65px;
+      top: 16px;
+      left: 24px;
+    }
+
+    .chip-row {
+      bottom: 2px;
+      left: 24px;
+      gap: 2px;
+    }
+
+    .chip {
+      font-size: 7px;
+      padding: 1px 2px;
+    }
+
+    .day-cell {
+      min-height: 85px;
+      padding: 2px;
     }
   }
   .day-cell .calendar-day.today {

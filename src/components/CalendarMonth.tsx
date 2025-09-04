@@ -97,7 +97,7 @@ const CalendarMonth: React.FC<CalendarMonthPropsWithEntries> = React.memo(({ mon
 
   return (
     <>
-      <div className="max-w-4xl mx-auto fade-in">
+      <div className="w-full sm:max-w-4xl sm:mx-auto fade-in px-0 sm:px-1 md:px-2">
         <div className="month-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {monthDays.map((day, index) => {
             const journalEntry = findJournalEntryForDate(journalEntries, day.date);
