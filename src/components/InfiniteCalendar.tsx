@@ -102,26 +102,39 @@ const InfiniteCalendar: React.FC<InfiniteCalendarProps> = ({ journalEntries }) =
   }, []);
 
   useEffect(() => {
-    const targetMonth = 8;
+    const targetMonth = 8; // September (0-indexed)
     const targetYear = 2025;
-    
+
     const months: MonthData[] = [];
     for (let i = -12; i <= 12; i++) {
-      let month = targetMonth + i;
-      let year = targetYear;
-      
-      if (month < 0) {
-        month += 12;
-        year--;
-      } else if (month >= 12) {
-        month -= 12;
-        year++;
-      }
-      
-      months.push(getMonthData(month, year));
+      const date = new Date(targetYear, targetMonth + i, 1);
+      months.push(getMonthData(date.getMonth(), date.getFullYear()));
     }
     setVisibleMonths(months);
+    setCurrentMonthIndex(12); // Ensure September 2025 is the initial month
   }, []);
+
+  useEffect(() => {
+    // Scroll to September 2025 after months are set
+    if (visibleMonths.length > 0 && containerRef.current) {
+      setTimeout(() => {
+        const targetIndex = visibleMonths.findIndex(m => m.month === 8 && m.year === 2025);
+        if (targetIndex !== -1) {
+          const monthElements = containerRef.current!.querySelectorAll('[data-month-key]');
+          const targetElement = monthElements[targetIndex] as HTMLElement;
+          if (targetElement) {
+            const elementTop = targetElement.offsetTop;
+            const headerHeight = 80;
+            const scrollPosition = elementTop - headerHeight;
+            containerRef.current!.scrollTo({
+              top: scrollPosition,
+              behavior: 'auto'
+            });
+          }
+        }
+      }, 0);
+    }
+  }, [visibleMonths]);
 
   const addMonthsToTop = useCallback(() => {
     setVisibleMonths(prev => {

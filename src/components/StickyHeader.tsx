@@ -111,13 +111,19 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ visibleMonths, containerRef
 
   useEffect(() => {
     if (visibleMonths.length > 0) {
-      const currentMonthData = visibleMonths.find(
+      const september2025 = visibleMonths.find(
         month => month.month === 8 && month.year === 2025
-      ) || visibleMonths[Math.floor(visibleMonths.length / 2)];
+      );
       
-      if (currentMonthData) {
-        setCurrentMonth({ month: currentMonthData.month, year: currentMonthData.year });
-        lastVisibleMonth.current = `${currentMonthData.year}-${currentMonthData.month}`;
+      if (september2025) {
+        setCurrentMonth({ month: september2025.month, year: september2025.year });
+        lastVisibleMonth.current = `${september2025.year}-${september2025.month}`;
+      } else {
+        const middleMonth = visibleMonths[Math.floor(visibleMonths.length / 2)];
+        if (middleMonth) {
+          setCurrentMonth({ month: middleMonth.month, year: middleMonth.year });
+          lastVisibleMonth.current = `${middleMonth.year}-${middleMonth.month}`;
+        }
       }
     }
   }, [visibleMonths]);
